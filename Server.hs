@@ -37,15 +37,14 @@ style :: Html
 style = H.style do
   "body {background-color: linen;}"
   "p {color: maroon;}"
-  ".buttonDiv {color: blue;}"
   "@font-face {font-family: 'Berkeley Mono'; src: url('/BerkeleyMono-Regular.woff2') format('woff2');}"
   "span.mono {font-family: 'Berkeley Mono';}"
 
 smile :: Html
-smile = H.div ! hxGet "/wow" ! hxSwap "outerHTML" ! A.class_ "buttonDiv" $ "Click me :)"
+smile = H.button ! hxGet "/wow" ! hxSwap "outerHTML" $ "Click me :)"
 
 wow :: Html
-wow = H.div ! hxGet "/smile" ! hxSwap "outerHTML" ! A.class_ "buttonDiv" $ "Click me :o"
+wow = H.button ! hxGet "/smile" ! hxSwap "outerHTML" $ "Click me :o"
 
 
 index :: Html
@@ -54,11 +53,12 @@ index = H.body do
     style
     H.script ! A.src "https://unpkg.com/htmx.org@1.8.5" $ ""
     H.script ! A.src "https://cdn.tailwindcss.com" $ ""
-  H.body ! A.class_ "container sm mx-auto" $ do
-    H.p do
-      "Welcome to "
-      H.span ! A.class_ "mono" $ "<The Index>"
-    smile
+  H.body ! A.class_ "container mx-auto" $ do
+    H.div ! A.class_ "flex flex-col h-full" $ do
+      H.p ! A.class_ "justify-center" $ do
+        "Welcome to "
+        H.span ! A.class_ "mono" $ "<The Index>"
+      smile
 
 makeServer :: FilePath -> Server Site
 makeServer contentPath =
