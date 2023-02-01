@@ -11,11 +11,12 @@ cabal-version:       >=1.10
 executable Server
   main-is:             Server.hs
   ghc-options:         -O2 -Wall -Werror -threaded -with-rtsopts=-N
-  default-extensions:  OverloadedLists, OverloadedStrings, DataKinds, TypeOperators, MultiParamTypeClasses, FlexibleContexts, LambdaCase, ScopedTypeVariables, RecordWildCards, NoMonomorphismRestriction, TypeApplications, BangPatterns, DeriveFunctor
+  default-extensions:  OverloadedLists, OverloadedStrings, DataKinds, TypeOperators, MultiParamTypeClasses, FlexibleContexts, LambdaCase, ScopedTypeVariables, RecordWildCards, NoMonomorphismRestriction, TypeApplications, BangPatterns, DeriveFunctor, DeriveGeneric
   build-depends:       base,
                        servant,
                        servant-server,
                        servant-blaze,
+                       blaze-htmx,
                        blaze-html,
                        blaze-markup,
                        warp,

@@ -47,7 +47,8 @@ packages:
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
-extra-deps: []
+extra-deps:
+  - blaze-htmx-0.1.0.0@sha256:cfd799bf5e0693879ad175168f6c78d45cb8f543428fa374f6ffb62fbc8dc52f,1327
   # - git: https://github.com/k0ral/rss-conduit.git
   #   commit: 7801c481c1a4d72d69c0f36f4c7b234bb7c4489d
   # - git: https://github.com/k0ral/atom-conduit.git
