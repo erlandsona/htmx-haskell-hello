@@ -4,17 +4,19 @@ module Main (main) where
 import           Control.Applicative             ((<|>))
 import           Control.Concurrent.Async        (async, waitAny)
 import           Data.Foldable                   (traverse_)
+import           GHC.Exts                        (IsString (fromString))
 import           GHC.Generics                    (Generic)
 import qualified Network.Wai.Handler.Warp        as Warp
 import qualified Network.Wai.Handler.WarpTLS     as TLS
 import qualified Options.Applicative             as OA
-import           Servant
+import           Servant                         hiding (route)
 import           Servant.HTML.Blaze              (HTML)
 import           System.FilePath.Posix           (addTrailingPathSeparator)
 import           System.IO                       (IOMode (AppendMode), hPrint,
                                                   openFile)
 import qualified Text.Blaze.Html5                as H
-import           Text.Blaze.Html5                (Html, (!))
+import           Text.Blaze.Html5                (Attribute, AttributeValue,
+                                                  Html, (!))
 import qualified Text.Blaze.Html5.Attributes     as A
 import           Text.Blaze.Htmx
 import           WaiAppStatic.Storage.Filesystem (defaultWebAppSettings)
@@ -30,6 +32,9 @@ data Site_ r = Site_
   }
   deriving Generic
 
+route :: Site_ (AsLink AttributeValue)
+route = allFieldLinks' (fromString . show . linkURI)
+
 serveDirectory_ :: FilePath -> Server Raw
 serveDirectory_ = serveDirectoryWith . defaultWebAppSettings . addTrailingPathSeparator
 
@@ -41,24 +46,42 @@ style = H.style do
   "span.mono {font-family: 'Berkeley Mono';}"
 
 smile :: Html
-smile = H.button ! hxGet "/wow" ! hxSwap "outerHTML" $ "Click me :)"
+smile =
+  -- LOOK_MA: Abstraction over common styles for branded components
+  btn
+    -- LOOK_MA: Typesafe Routing via Servant Links!
+    ! hxGet (_wow route)
+    ! hxSwap "outerHTML"
+    $ "Click me :)"
 
 wow :: Html
-wow = H.button ! hxGet "/smile" ! hxSwap "outerHTML" $ "Click me :o"
+wow =
+  btn
+    ! hxGet (_smile route)
+    ! hxSwap "outerHTML"
+    $ "Click me :o"
 
+-- LOOK_MA: Abstraction over common styles for branded components
+btn :: Html -> Html
+btn = H.button ! p5
+
+-- LOOK_MA: Abstraction over common styles for branded components
+p5 :: Attribute
+p5 = A.class_ "p-5"
 
 index :: Html
-index = H.body do
-  H.head do
-    style
-    H.script ! A.src "https://unpkg.com/htmx.org@1.8.5" $ ""
-    H.script ! A.src "https://cdn.tailwindcss.com" $ ""
-  H.body ! A.class_ "container mx-auto" $ do
-    H.div ! A.class_ "flex flex-col h-full" $ do
-      H.p ! A.class_ "justify-center" $ do
-        "Welcome to "
-        H.span ! A.class_ "mono" $ "<The Index>"
-      smile
+index =
+  H.docTypeHtml do
+    H.head do
+      style
+      H.script ! A.src "https://unpkg.com/htmx.org@1.8.5" $ ""
+      H.script ! A.src "https://cdn.tailwindcss.com" $ ""
+    H.body ! A.class_ "container mx-auto" $ do
+      H.div ! A.class_ "flex flex-col h-full" $ do
+        H.div ! A.class_ "align-self-center pt-3 pb-5" $ do
+          "Welcome to "
+          H.span ! A.class_ "mono" $ "<The Index>"
+        smile
 
 makeServer :: FilePath -> Server Site
 makeServer contentPath =
