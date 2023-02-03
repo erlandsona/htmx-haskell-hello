@@ -27,7 +27,7 @@ type Site = NamedRoutes Site_
 data Site_ r = Site_
   { _index :: r :- Get '[HTML] Html
   , _smile :: r :- "smile" :> Get '[HTML] Html
-  , _wow   :: r :- "wow" :> Get '[HTML] Html
+  , _wow   :: r :- "wow" :> Capture "stuff" Int :> Get '[HTML] Html
   , static :: r :- Raw
   }
   deriving Generic
@@ -50,7 +50,7 @@ smile =
   -- LOOK_MA: Abstraction over common styles for branded components
   btn
     -- LOOK_MA: Typesafe Routing via Servant Links!
-    ! hxGet (_wow route)
+    ! hxGet (_wow route 1)
     ! hxSwap "outerHTML"
     $ "Click me :)"
 
@@ -71,12 +71,12 @@ p5 = A.class_ "p-5"
 
 index :: Html
 index =
-  H.docTypeHtml do
-    H.head do
+  H.docTypeHtml ! A.class_ "h-full" $ do
+    H.head  do
       style
       H.script ! A.src "https://unpkg.com/htmx.org@1.8.5" $ ""
       H.script ! A.src "https://cdn.tailwindcss.com" $ ""
-    H.body ! A.class_ "container mx-auto" $ do
+    H.body ! A.class_ "container h-full mx-auto" $ do
       H.div ! A.class_ "flex flex-col h-full" $ do
         H.div ! A.class_ "align-self-center pt-3 pb-5" $ do
           "Welcome to "
@@ -89,7 +89,7 @@ makeServer contentPath =
     { static = serveDirectory_ contentPath
     , _index = pure index
     , _smile = pure smile
-    , _wow = pure wow
+    , _wow = const $ pure wow
     }
 
 data TLSMode = NoTLS | TLS {tlsCertPath :: FilePath, tlsKeyPath :: FilePath, tlsPort :: Warp.Port}
